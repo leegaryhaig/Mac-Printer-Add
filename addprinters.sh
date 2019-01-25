@@ -44,7 +44,7 @@ addPrinter(){
     cupsenable "$1" -E
     cupsaccept "$1"
 
-    lp -d "$1" -o media="letter" $TESTPRINT
+    lpr -d "$1" -o media="letter" $TESTPRINT
 
     sudo killall -HUP cupsd
 
@@ -68,7 +68,7 @@ addPrinter(){
 
     sudo killall -HUP cupsd
 
-    lp -d "$1" -o media="letter" $TESTPRINT
+    lpr -d "$1" -o media="letter" $TESTPRINT
 
 
   fi
