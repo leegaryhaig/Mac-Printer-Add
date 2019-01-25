@@ -23,8 +23,6 @@ KEYCHAIN='/library/keychains/'
 AUTH=none
 
 
-
- 
 addPrinter(){
   PRINTER="$1"
   PPD="$2"
@@ -66,7 +64,7 @@ addPrinter(){
 
     cupsdisable
     cupsenable "$1" -E
-    cupsaccept "$1" 
+    cupsaccept "$1"
 
     sudo killall -HUP cupsd
 
@@ -75,6 +73,16 @@ addPrinter(){
 
   fi
 }
+
+# Error Log Location /private/var/log/cups/error_log.txt
+
+# Delete specific printer q
+#lprm "[printername]"
+
+
+"""if error log contains 'authentication required'
+then clear the 'print' keychain, '[computer_name]' keychain if it exists
+clear the error_log, print q and rerun addPrinter()'"""
 
 
  printerOptions(){
@@ -224,7 +232,7 @@ vd_sette(){
 }
 
 vd_shresta(){
-  addPrinter "VD_Shresta_3700dtn"
+  addPrinter "VD_Shresta_3700dtn" # Not sure
 }
 
 vivarium(){
