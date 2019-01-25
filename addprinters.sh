@@ -86,7 +86,10 @@ addPrinter(){
          -l
  }
 
-
+list(){
+  echo PRINTER GROUPS
+  printf "first\nsecond\nthird\naccounting\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
+}
 
 
 irt(){
@@ -99,19 +102,18 @@ irt(){
 
 
 first(){
-  #printerOptions "1st_Floor_Mail_6052ci"
-  addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True" # Good
+  addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
+  #printerOptions "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD"
 }
 
 
 second(){
-  #addPrinter "2nd_Floor_Copy_6052ci"
-  addPrinter "2nd_Floor_Copy_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True" # Good
+  addPrinter "2nd_Floor_Copy_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
 }
 
 
 third(){
-  addPrinter "3rd_Floor_Accounting_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True" # Good
+  addPrinter "3rd_Floor_Accounting_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
   addPrinter "3rd_Floor_Exec_Copier_6551ci" "$PPDPATH/Kyocera TASKalfa 6551ci.PPD" "-o Option17=DF770 Option21=True" # Good
 }
 
@@ -182,45 +184,42 @@ di_schoenberger(){
 }
 
 di_vonherrath(){
-  addPrinter "DI_VonHerrath_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" 
-  addPrinter "DI_Private_Matthias_P6035dn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" 
+  addPrinter "DI_VonHerrath_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
 }
 
 
 flow(){
-  addPrinter "Flow_Office_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD"
+  addPrinter "Flow_Office_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
 }
 
 ib_hedrick(){
-  addPrinter "IB_Hedrick_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
+  addPrinter "IB_Hedrick_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
 }
 
 ir_croft(){
-  addPrinter "IR_Croft_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
-
+  addPrinter "IR_Croft_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
+}
 
 ir_newmeyer(){
-  addPrinter "IR_Newmeyer_m551dn" "$PPDPATH/HP LaserJet 500 color M551.gz"
-}
+  addPrinter "IR_Newmeyer_m551dn" "$PPDPATH/HP LaserJet 500 color M551.gz" # Good
 }
 
+
 rnai(){
-  addPrinter "RNAi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
+  addPrinter "RNAi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
 }
 
 sge_rao(){
-  addPrinter "SGE_Rao_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
+  addPrinter "SGE_Rao_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
 }
 
 vd_crotty(){
-  addPrinter "VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz"
-
-
+  addPrinter "VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz" # Good
 }
 
 vd_sette(){
   #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
-  addPrinter "VD_Sette_P6130" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD"
+  addPrinter "VD_Sette_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Error State
   #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 }
 
@@ -232,6 +231,8 @@ vivarium(){
   addPrinter "AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd" # Good
 }
 
+#  #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
+#}
 
 
 # Just run the function we tell it as an argument to this script
