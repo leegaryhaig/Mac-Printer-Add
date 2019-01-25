@@ -44,7 +44,7 @@ addPrinter(){
     cupsenable "$1" -E
     cupsaccept "$1"
 
-    lpr -d "$1" -o media="letter" $TESTPRINT
+    lp -d "$1" -o media="letter" $TESTPRINT
 
     sudo killall -HUP cupsd
 
@@ -68,7 +68,7 @@ addPrinter(){
 
     sudo killall -HUP cupsd
 
-    lpr -d "$1" -o media="letter" $TESTPRINT
+    lp -d "$1" -o media="letter" $TESTPRINT
 
 
   fi
@@ -78,6 +78,10 @@ addPrinter(){
 
 # Delete specific printer q
 #lprm "[printername]"
+
+# KEYCHAIN
+#security find-internet-password -l 'print'
+#securiy delete-internet-password -l 'print'
 
 
 """if error log contains 'authentication required'
