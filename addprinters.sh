@@ -14,13 +14,17 @@
 PPDPATH="/Library/Printers/PPDs/Contents/Resources/"
 TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
-
+ERRORLOG='/private/var/log/cups/error_log'
 
 # use AUTH=negotiate for kerberos
 # AUTH=negotiate
 
 # default to AUTH=none so the user is prompted for creds
 AUTH=none
+
+checkError(){
+  grep 'Authentiation Error' $ERRORLOG
+}
 
 
 addPrinter(){
@@ -74,19 +78,19 @@ addPrinter(){
   fi
 }
 
-# Error Log Location /private/var/log/cups/error_log.txt
+# Error Log Location /private/var/log/cups/error_log
 
 # Delete specific printer q
 #lprm "[printername]"
 
 # KEYCHAIN
 #security find-internet-password -l 'print'
-#securiy delete-internet-password -l 'print'
+#security delete-internet-password -l 'print'
 
 
-"""if error log contains 'authentication required'
-then clear the 'print' keychain, '[computer_name]' keychain if it exists
-clear the error_log, print q and rerun addPrinter()'"""
+#if error log contains 'authentication required'
+#then clear the 'print' keychain, '[computer_name]' keychain if it exists
+#clear the error_log, print q and rerun addPrinter()
 
 
  printerOptions(){
@@ -114,8 +118,8 @@ irt(){
 
 
 first(){
-  addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
-  #printerOptions "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD"
+  addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=Third" # Good
+  printerOptions "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD"
 }
 
 
