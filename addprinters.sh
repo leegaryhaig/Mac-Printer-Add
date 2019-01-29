@@ -6,10 +6,20 @@
 # Edited on: Jan 4th, 2019
 # By: Gary Lee
 
-# Still needs printers pointed to proper ppd files to finish script.
+# Shell should only have these Functions:
+# 1. Add PRINTER
+# 2. Check Printer options
+# 3. Check For errors
+# 4. Try to Resolve errors
+# 5. Print Test Page
 
-# get a list of printers from the print server like so (if you gots the tool installed):
-# smbclient -U mtalbott -W LIAI_AD -L PRINT
+# Global Variables that maintains its existsence throughout the program:
+# 1. PPD path
+# 2. testprint path
+# 3. Keychain
+# 4. Errorlog path
+
+# Local Variables
 
 PPDPATH="/Library/Printers/PPDs/Contents/Resources/"
 TESTPRINT="/usr/share/cups/data/testprint"
@@ -23,6 +33,8 @@ checkError(){
     echo There is an Authentication Error...Attempting to resolve.
     echo Clearing AD_IRT_P6035cdn queue
     cancel -a "AD_IRT_P6035cdn"
+
+
   elif [[ "$check -eq 1" ]]; then
     echo No Error found....
   else
@@ -92,10 +104,6 @@ addPrinter(){
 }
 
 
-# Error Log Location /private/var/log/cups/error_log
-
-# Delete specific printer q
-#lprm "[printername]"
 
 # KEYCHAIN
 #security find-internet-password -l 'print'
@@ -106,6 +114,7 @@ addPrinter(){
 #then clear the 'print' keychain, '[computer_name]' keychain if it exists
 #clear the error_log, print q and rerun addPrinter()
 
+#
 
  printerOptions(){
      PRINTER="$1"
@@ -118,153 +127,66 @@ addPrinter(){
 
 list(){
   echo PRINTER GROUPS
-  printf "first\nsecond\nthird\naccounting\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
+  printf "first\nsecond\nthird\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
 }
 
 
-irt(){
-  # Here's the example. Call addPrinter and use the printername as 1st argument and PPD file as second.
-  # Use the $PPDPATH variable as a shortcut to mac os's standard path for ppd files
-  # Third argument is optional for printer specific options like duplexer options, etc.
-  #printerOptions "AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
-  addPrinter "AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-  checkError
-}
 
+ # Array length: echo "${#ArrayName[@]}"
+irt=("AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 
-first(){
-  addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=Third" # Good
-  printerOptions "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD"
+first=("1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=Third")
 
-}
+second=("2nd_Floor_Copy_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False") # Good
 
+third=("3rd_Floor_Accounting_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False")
 
-second(){
-  addPrinter "2nd_Floor_Copy_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
-}
+executive=("3rd_Floor_Exec_Copier_6551ci" "$PPDPATH/Kyocera TASKalfa 6551ci.PPD" "-o Option17=DF770 Option21=True" )
 
+ehs=("AD_EHS_Copier_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.PPD")
 
-third(){
-  addPrinter "3rd_Floor_Accounting_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False" # Good
-  addPrinter "3rd_Floor_Exec_Copier_6551ci" "$PPDPATH/Kyocera TASKalfa 6551ci.PPD" "-o Option17=DF770 Option21=True" # Good
-}
+facilities=("AD_Facilities_3015dn" "$PPDPATH/hp LaserJet 3015.gz" "-o InputSlot=Tray2")
 
+osr=("AD_OSR_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 
-accounting(){
-  addPrinter "3rd_Floor_Accounting_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True" # Good
-  addPrinter "3rd_Floor_Exec_Copier_6551ci" "$PPDPATH/Kyocera TASKalfa 6551ci.PPD" "-o Option17=DF770 Option21=True" # Good
-}
+purchasing=("AD_Purchasing_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.PPD")
 
+tech_dev=("AD_TechDev_P3015dn" "$PPDPATH/hp LaserJet 3015.gz")
 
-ehs(){
-  addPrinter "AD_EHS_Copier_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.PPD" # Good
-}
+cb_altman=("CB_Altman_4050tn" "$PPDPATH/HP LaserJet 4050 Series.gz")
 
+cb_liu=("CB_Liu_CP3525" "$PPDPATH/HP Color LaserJet CP3525.gz")
 
-facilities(){
-  printerOptions "AD_Facilities_3015dn" "$PPDPATH/hp LaserJet 3015.gz"
-  addPrinter "AD_Facilities_3015dn" "$PPDPATH/hp LaserJet 3015.gz" "-o InputSlot=Tray2"
-}
+cb_sharma=("CB_Sharma_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd")
 
+di_kronenberg=("DI_Kronenberg_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 
-osr(){
-  addPrinter "AD_OSR_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
-}
+di_linden=("DI_Linden_CP2025dn" "$PPDPATH/HP Color LaserJet CP2020 Series.gz")
 
+di_schoenberger=("DI_Schoenberger_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
+  #addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
+  #addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
 
-purchasing(){
-  addPrinter "AD_Purchasing_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.PPD" # Good
-}
+di_vonherrath=("DI_VonHerrath_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 
+flow=("Flow_Office_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 
-tech_dev(){
-  addPrinter "AD_TechDev_P3015dn" "$PPDPATH/hp LaserJet 3015.gz" # Good
-}
+ib_hedrick=("IB_Hedrick_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 
+ir_croft=("IR_Croft_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 
-cb_altman(){
-  addPrinter "CB_Altman_4050tn" "$PPDPATH/HP LaserJet 4050 Series.gz" # Good
-  addPrinter "CB_Altman_Private_M451" "$PPDPATH/HP LJ 300-400 color M351-M451.gz" # Idle
-}
+ir_newmeyer=("IR_Newmeyer_m551dn" "$PPDPATH/HP LaserJet 500 color M551.gz")
 
+rnai=("RNAi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 
-cb_liu(){
-  addPrinter "CB_Liu_CP3525" "$PPDPATH/HP Color LaserJet CP3525.gz" # Idle
-}
+sge_rao=("SGE_Rao_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 
+vd_crotty=("VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz")
 
-cb_sharma(){
-  addPrinter "CB_Sharma_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd" # Good
-  addPrinter "CB_Sharma_Phaser_6500" "$PPDPATH/RICOH Aficio MP 6500.gz" # Idle
-}
-
-
-di_kronenberg(){
-  addPrinter "DI_Kronenberg_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
-}
-
-
-di_linden(){
-  addPrinter "DI_Linden_CP2025dn" "$PPDPATH/HP Color LaserJet CP2020 Series.gz" # Error State
-}
-
-
-di_schoenberger(){
-  addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-  addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
-  addPrinter "DI_Schoenberger_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
-}
-
-di_vonherrath(){
-  addPrinter "DI_VonHerrath_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
-}
-
-
-flow(){
-  addPrinter "Flow_Office_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Good
-}
-
-ib_hedrick(){
-  addPrinter "IB_Hedrick_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-}
-
-ir_croft(){
-  addPrinter "IR_Croft_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-}
-
-ir_newmeyer(){
-  addPrinter "IR_Newmeyer_m551dn" "$PPDPATH/HP LaserJet 500 color M551.gz" # Good
-}
-
-
-rnai(){
-  addPrinter "RNAi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-}
-
-sge_rao(){
-  addPrinter "SGE_Rao_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
-}
-
-vd_crotty(){
-  addPrinter "VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz" # Good
-}
-
-vd_sette(){
+vd_sette=("VD_Sette_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
   #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
-  addPrinter "VD_Sette_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD" # Error State
   #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
-}
 
-vd_shresta(){
-  addPrinter "VD_Shresta_3700dtn" # Not sure
-}
+vd_shresta=("VD_Shresta_3700dtn")
 
-vivarium(){
-  addPrinter "AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd" # Good
-}
-
-
-# Just run the function we tell it as an argument to this script
-# i.e.
-# ./addPrinters IRT
-"$1"
+vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
