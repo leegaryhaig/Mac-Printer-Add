@@ -16,16 +16,26 @@ TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
 ERRORLOG='/private/var/log/cups/error_log'
 
+
+checkError(){
+  grep 'Authentication' $ERRORLOG | check=$?
+  if [[ "$check" -eq 0 ]]; then
+    echo There is an Authentication Error...Attempting to resolve.
+    echo Clearing AD_IRT_P6035cdn queue
+    cancel -a "AD_IRT_P6035cdn"
+  elif [[ "$check -eq 1" ]]; then
+    echo No Error found....
+  else
+    echo Error Occured.
+
+  fi
+}
+
 # use AUTH=negotiate for kerberos
 # AUTH=negotiate
 
 # default to AUTH=none so the user is prompted for creds
 AUTH=none
-
-checkError(){
-  grep 'Authentiation Error' $ERRORLOG
-}
-
 
 addPrinter(){
   PRINTER="$1"
@@ -52,6 +62,8 @@ addPrinter(){
 
     sudo killall -HUP cupsd
 
+    checkError
+
 
   # If 3 arguments are supplied, include the 3rd as printer options
   elif [[ "$#" -eq 3 ]]; then
@@ -74,9 +86,11 @@ addPrinter(){
 
     lp -d "$1" -o media="letter" $TESTPRINT
 
+    checkError
 
   fi
 }
+
 
 # Error Log Location /private/var/log/cups/error_log
 
@@ -114,12 +128,14 @@ irt(){
   # Third argument is optional for printer specific options like duplexer options, etc.
   #printerOptions "AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD"
   addPrinter "AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
+  checkError
 }
 
 
 first(){
   addPrinter "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=Third" # Good
   printerOptions "1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD"
+
 }
 
 
@@ -247,12 +263,8 @@ vivarium(){
   addPrinter "AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd" # Good
 }
 
-#  #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
-#}
-
 
 # Just run the function we tell it as an argument to this script
 # i.e.
 # ./addPrinters IRT
-
 "$1"
