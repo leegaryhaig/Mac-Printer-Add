@@ -12,14 +12,19 @@
 # 3. Check For errors
 # 4. Try to Resolve errors
 # 5. Print Test Page
+# 6. Show list of printers
 
-# Global Variables that maintains its existsence throughout the program:
+# Global Variables that maintains its existence throughout the program:
 # 1. PPD path
 # 2. testprint path
 # 3. Keychain
 # 4. Errorlog path
 # 5. Printer Lists
 
+# use AUTH=negotiate for kerberos
+# AUTH=negotiate
+# default to AUTH=none so the user is prompted for creds
+AUTH=none
 PPDPATH="/Library/Printers/PPDs/Contents/Resources/"
 TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
@@ -42,8 +47,6 @@ cb_sharma=("CB_Sharma_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd")
 di_kronenberg=("DI_Kronenberg_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 di_linden=("DI_Linden_CP2025dn" "$PPDPATH/HP Color LaserJet CP2020 Series.gz")
 di_schoenberger=("DI_Schoenberger_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
- #addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
- #addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
 di_vonherrath=("DI_VonHerrath_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 flow=("Flow_Office_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 ib_hedrick=("IB_Hedrick_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
@@ -53,12 +56,30 @@ rnai=("RNAi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 sge_rao=("SGE_Rao_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 vd_crotty=("VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz")
 vd_sette=("VD_Sette_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
- #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
- #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 vd_shresta=("VD_Shresta_3700dtn")
 vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
+#addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
+#addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
+#addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
+#addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 
+list(){
+  echo PRINTER GROUPS
+  printf "first\nsecond\nthird\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
+}
 
+testPrint(){
+  lp -d "$1" -o media="letter" $TESTPRINT
+}
+
+# This function will display the print options available to each printer.
+printerOptions(){
+  PRINTER="$1"
+  PPD="$2"
+  lpoptions \
+      -p "$1" \
+      -l
+}
 
 checkError(){
   grep 'Authentication' $ERRORLOG | check=$?
@@ -66,7 +87,8 @@ checkError(){
     echo There is an Authentication Error...Attempting to resolve.
     echo Clearing AD_IRT_P6035cdn queue
     cancel -a "AD_IRT_P6035cdn"
-
+    security find-internet-password -l 'print'
+    #security delete-internet-password -l 'print'
 
   elif [[ "$check -eq 1" ]]; then
     echo No Error found....
@@ -76,11 +98,6 @@ checkError(){
   fi
 }
 
-# use AUTH=negotiate for kerberos
-# AUTH=negotiate
-
-# default to AUTH=none so the user is prompted for creds
-AUTH=none
 
 addPrinter(){
   PRINTER="$1"
@@ -103,7 +120,7 @@ addPrinter(){
     cupsenable "$1" -E
     cupsaccept "$1"
 
-    lp -d "$1" -o media="letter" $TESTPRINT
+    testPrint
 
     sudo killall -HUP cupsd
 
@@ -129,7 +146,7 @@ addPrinter(){
 
     sudo killall -HUP cupsd
 
-    lp -d "$1" -o media="letter" $TESTPRINT
+    testPrint
 
     checkError
 
@@ -137,28 +154,12 @@ addPrinter(){
 }
 
 
+##################
+if [[ "$1" = "list" ]]; then
+    list
+elif [[ "$#" -eq 1 ]]; then
+    printerName="$1"
+    echo ${${printerName}[@]}
 
-# KEYCHAIN
-#security find-internet-password -l 'print'
-#security delete-internet-password -l 'print'
+fi
 
-
-#if error log contains 'authentication required'
-#then clear the 'print' keychain, '[computer_name]' keychain if it exists
-#clear the error_log, print q and rerun addPrinter()
-
-#
-
- printerOptions(){
-     PRINTER="$1"
-     PPD="$2"
-
-     lpoptions \
-         -p "$1" \
-         -l
- }
-
-list(){
-  echo PRINTER GROUPS
-  printf "first\nsecond\nthird\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
-}
