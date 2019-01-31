@@ -63,6 +63,7 @@ vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
 #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
 #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 
+
 list(){
   echo PRINTER GROUPS
   printf "first\nsecond\nthird\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
@@ -158,8 +159,9 @@ addPrinter(){
 if [[ "$1" = "list" ]]; then
     list
 elif [[ "$#" -eq 1 ]]; then
-    printerName="$1"
-    echo ${${printerName}[@]}
+    arrayName="$1"
+    printerGroup=$arrayName[@]
+    echo ${!printerGroup}
 
 fi
 
