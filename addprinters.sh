@@ -159,8 +159,7 @@ addPrinter(){
 if [[ "$1" = "list" ]]; then
     list
 elif [[ "$#" -eq 1 ]]; then
-    arrayName="$1"
-    printerGroup=$arrayName[@]
+    printerGroup=${1}[@]
     echo ${!printerGroup}
 
 fi
