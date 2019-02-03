@@ -159,11 +159,15 @@ addPrinter(){
 if [[ "$1" = "list" ]]; then
     list
 elif [[ "$#" -eq 1 ]]; then
-    printerGroup=${1}[1]
-    echo ${!printerGroup}
+    # printerGroup=${1}[1]
+    # echo ${!printerGroup}
 
     argLength=$(eval echo '$'{'#'${1}[@]}) #length of list
     echo $argLength
 
+    for (( i=0; i<=$argLength; i++ )) do
+      printerGroup=${1}[$i]
+      echo ${!printerGroup}
+    done
 
 fi
