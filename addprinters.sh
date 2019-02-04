@@ -63,6 +63,10 @@ vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
 #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
 #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 
+# Assigns the array elements to variables
+printerName=${1}[0]
+ppd=${1}[1]
+options=${1}[2]
 
 list(){
   echo PRINTER GROUPS
@@ -77,6 +81,7 @@ testPrint(){
 printerOptions(){
   PRINTER="$1"
   PPD="$2"
+
   lpoptions \
       -p "$1" \
       -l
@@ -158,24 +163,22 @@ addPrinter(){
 
 
 ##################
+
+
 if [[ "$1" = "list" ]]; then
-    list
+  list
 elif [[ "$#" -eq 1 ]]; then
-    # Assigns the array elements to variables
-    printerName=${1}[0]
-    ppd=${1}[1]
-    options=${1}[2]
+  #
+  if [[ -z "${!options}" ]]; then
+    echo "${!printerName}" has null 3rd argument
+    addPrinter "${!printerName}" "${!ppd}"
+  else
+    echo 3rd argument found
+    addPrinter "${!printerName}" "${!ppd}" "${!options}"
+  fi
 
-    echo ${!printerName}
-    echo ${!ppd}
-    echo ${!options}
-
-    if [[ -z "${!options}" ]]; then
-      echo "${!printerName}" has null 3rd argument
-      addPrinter "${!printerName}" "${!ppd}"
-    else
-      echo 3rd argument found
-      addPrinter "${!printerName}" "${!ppd}" "${!options}"
-    fi
+elif [[ "$#" -eq 2 && "$2" = "options" ]]; then
+  echo "${!printerName}"
+  printerOptions "${!printerName}"
 
 fi
