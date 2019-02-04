@@ -24,8 +24,8 @@
 # use AUTH=negotiate for kerberos
 # AUTH=negotiate
 # default to AUTH=none so the user is prompted for creds
-AUTH=none
-PPDPATH="/Library/Printers/PPDs/Contents/Resources/"
+AUTH='none'
+PPDPATH="/Library/Printers/PPDs/Contents/Resources"
 TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
 ERRORLOG='/private/var/log/cups/error_log'
@@ -88,6 +88,8 @@ checkError(){
     echo There is an Authentication Error...Attempting to resolve.
     echo Clearing AD_IRT_P6035cdn queue
     cancel -a "AD_IRT_P6035cdn"
+
+    # if keychain found then delete keychain
     security find-internet-password -l 'print'
     #security delete-internet-password -l 'print'
 
@@ -121,11 +123,11 @@ addPrinter(){
     cupsenable "$1" -E
     cupsaccept "$1"
 
-    testPrint
+    testPrint "$1"
 
     sudo killall -HUP cupsd
 
-    checkError
+    #checkError
 
 
   # If 3 arguments are supplied, include the 3rd as printer options
@@ -147,9 +149,9 @@ addPrinter(){
 
     sudo killall -HUP cupsd
 
-    testPrint
+    testPrint "$1"
 
-    checkError
+    #checkError
 
   fi
 }
@@ -159,15 +161,21 @@ addPrinter(){
 if [[ "$1" = "list" ]]; then
     list
 elif [[ "$#" -eq 1 ]]; then
-    # printerGroup=${1}[1]
-    # echo ${!printerGroup}
+    # Assigns the array elements to variables
+    printerName=${1}[0]
+    ppd=${1}[1]
+    options=${1}[2]
 
-    argLength=$(eval echo '$'{'#'${1}[@]}) #length of list
-    echo $argLength
+    echo ${!printerName}
+    echo ${!ppd}
+    echo ${!options}
 
-    for (( i=0; i<=$argLength; i++ )) do
-      printerGroup=${1}[$i]
-      echo ${!printerGroup}
-    done
+    if [[ -z "${!options}" ]]; then
+      echo "${!printerName}" has null 3rd argument
+      addPrinter "${!printerName}" "${!ppd}"
+    else
+      echo 3rd argument found
+      addPrinter "${!printerName}" "${!ppd}" "${!options}"
+    fi
 
 fi
