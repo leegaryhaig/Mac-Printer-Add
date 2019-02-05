@@ -1,25 +1,7 @@
 #!/bin/bash
 # Simple script to automatically add printers from the print server
-# to a mac.
-# Created on: Feb 13, 2015
-# By: Michael Talbott
-# Edited on: Jan 4th, 2019
+# Created on: Jan 4th, 2019
 # By: Gary Lee
-
-# Shell should only have these Functions:
-# 1. Add PRINTER
-# 2. Check Printer options
-# 3. Check For errors
-# 4. Try to Resolve errors
-# 5. Print Test Page
-# 6. Show list of printers
-
-# Global Variables that maintains its existence throughout the program:
-# 1. PPD path
-# 2. testprint path
-# 3. Keychain
-# 4. Errorlog path
-# 5. Printer Lists
 
 # use AUTH=negotiate for kerberos
 # AUTH=negotiate
@@ -30,7 +12,6 @@ TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
 ERRORLOG='/private/var/log/cups/error_log'
 
-# Array length: echo "${#ArrayName[@]}"
 irt=("AD_IRT_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 first=("1st_Floor_Mail_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=Third")
 second=("2nd_Floor_Copy_6052ci" "$PPDPATH/Kyocera TASKalfa 6052ci.PPD" "-o Option17=DF730 Option21=True Option19=False") # Good
@@ -63,27 +44,75 @@ vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
 #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
 #addPrinter "VD_Sette_Private_April_FS-4200DN" "$PPDPATH/Kyocera FS-4200DN.ppd"
 
+
 # Assigns the array elements to variables
 printerName=${1}[0]
-ppd=${1}[1]
-options=${1}[2]
+ppdFile=${1}[1]
+printOptions=${1}[2]
 
 list(){
   echo PRINTER GROUPS
   printf "first\nsecond\nthird\nehs\nfacilities\nosr\npurchasing\ntech_dev\ncb_altman\ncb_liu\ncb_sharma\ndi_kronenberg\ndi_linden\ndi_schoenberger\ndi_vonherrath\nflow\nib_hedrick\nir_croft\nir_newmeyer\nrnai\nsge_rao\nvd_crotty\nvd_sette\nvd_shresta\nvivarium"
 }
 
-testPrint(){
-  lp -d "$1" -o media="letter" $TESTPRINT
+addPrinter(){
+  printerName="$1"
+  ppdFile="$2"
+  printerOptions="$3"
+
+  echo "$printerName"
+  echo "$ppdFile"
+  echo "$printerOptions"
+
+  # If only 2 arguments are supplied don't include printer options
+  if [[ "$#" -eq 2 ]]; then
+    echo adding "$printerName"
+
+    lpadmin \
+       -p "$printerName" \
+       -v "smb://print/$printerName" \
+       -P "$ppdFile" \
+       -E \
+       -o printer-is-shared=false \
+       -o auth-info-required="$AUTH" \
+
+    cupsdisable
+    cupsenable "$printerName" -E
+    cupsaccept "$printerName"
+    # sends test print page
+    lp -d "$printerName" -o media="letter" $TESTPRINT
+    sudo killall -HUP cupsd
+    #checkError
+
+
+  # If 3 arguments are supplied, include the 3rd as printer options
+  elif [[ "$#" -eq 3 ]]; then
+    echo adding "$printerName"
+
+    lpadmin \
+       -p "$printerName" \
+       -v "smb://print/$printerName" \
+       -P "$ppdFile" \
+       -E \
+       -o printer-is-shared=false \
+       -o auth-info-required="$AUTH" \
+       "$printerOptions"
+
+    cupsdisable
+    cupsenable "$printerName" -E
+    cupsaccept "$printerName"
+    sudo killall -HUP cupsd
+    # sends test print page
+    lp -d "$printerName" -o media="letter" $TESTPRINT
+    #checkError
+  fi
 }
 
 # This function will display the print options available to each printer.
-printerOptions(){
-  PRINTER="$1"
-  PPD="$2"
-
+ppdSettings(){
+  printerName="$1"
   lpoptions \
-      -p "$1" \
+      -p "$printerName" \
       -l
 }
 
@@ -93,92 +122,28 @@ checkError(){
     echo There is an Authentication Error...Attempting to resolve.
     echo Clearing AD_IRT_P6035cdn queue
     cancel -a "AD_IRT_P6035cdn"
-
     # if keychain found then delete keychain
     security find-internet-password -l 'print'
-    #security delete-internet-password -l 'print'
-
+    security delete-internet-password -l 'print'
   elif [[ "$check -eq 1" ]]; then
     echo No Error found....
   else
     echo Error Occured.
-
   fi
 }
 
 
-addPrinter(){
-  PRINTER="$1"
-  PPD="$2"
-
-  echo "$#"
-  # If only 2 arguments are supplied don't include printer options
-  if [[ "$#" -eq 2 ]]; then
-    echo adding "$1"
-
-    lpadmin \
-       -p "$1" \
-       -v "smb://print/$PRINTER" \
-       -P "$2" \
-       -E \
-       -o printer-is-shared=false \
-       -o auth-info-required="$AUTH" \
-
-    cupsdisable
-    cupsenable "$1" -E
-    cupsaccept "$1"
-
-    testPrint "$1"
-
-    sudo killall -HUP cupsd
-
-    #checkError
-
-
-  # If 3 arguments are supplied, include the 3rd as printer options
-  elif [[ "$#" -eq 3 ]]; then
-    echo adding "$1"
-
-    lpadmin \
-       -p "$1" \
-       -v "smb://print/$PRINTER" \
-       -P "$2" \
-       -E \
-       -o printer-is-shared=false \
-       -o auth-info-required="$AUTH" \
-       "$3"
-
-    cupsdisable
-    cupsenable "$1" -E
-    cupsaccept "$1"
-
-    sudo killall -HUP cupsd
-
-    testPrint "$1"
-
-    #checkError
-
-  fi
-}
-
-
-##################
-
+############################################################
 
 if [[ "$1" = "list" ]]; then
   list
 elif [[ "$#" -eq 1 ]]; then
-  #
   if [[ -z "${!options}" ]]; then
-    echo "${!printerName}" has null 3rd argument
-    addPrinter "${!printerName}" "${!ppd}"
+    addPrinter "${!printerName}" "${!ppdFile}"
   else
-    echo 3rd argument found
-    addPrinter "${!printerName}" "${!ppd}" "${!options}"
+    addPrinter "${!printerName}" "${!ppdFile}" "${!printOptions}"
   fi
-
 elif [[ "$#" -eq 2 && "$2" = "options" ]]; then
-  echo "${!printerName}"
-  printerOptions "${!printerName}"
+  ppdSettings "${!printerName}"
 
 fi
