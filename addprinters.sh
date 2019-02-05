@@ -56,76 +56,72 @@ list(){
 }
 
 addPrinter(){
-  printerName="$1"
-  ppdFile="$2"
-  printerOptions="$3"
-
-  echo "$printerName"
-  echo "$ppdFile"
-  echo "$printerOptions"
-
+  printerName=${1}
+  ppdFile=${2}
+  printerOptions=${3}
   # If only 2 arguments are supplied don't include printer options
   if [[ "$#" -eq 2 ]]; then
-    echo adding "$printerName"
+    echo adding ${printerName}
+    echo ppdFile ${ppdFile}
+    echo printerOptions ${printerOptions}
 
     lpadmin \
-       -p "$printerName" \
+       -p ${printerName} \
        -v "smb://print/$printerName" \
-       -P "$ppdFile" \
+       -P "${ppdFile}" \
        -E \
        -o printer-is-shared=false \
-       -o auth-info-required="$AUTH" \
+       -o auth-info-required=${AUTH} \
 
     cupsdisable
-    cupsenable "$printerName" -E
-    cupsaccept "$printerName"
+    cupsenable ${printerName} -E
+    cupsaccept ${printerName}
     # sends test print page
-    lp -d "$printerName" -o media="letter" $TESTPRINT
+    lp -d ${printerName} -o media="letter" ${TESTPRINT}
     sudo killall -HUP cupsd
     #checkError
 
-
   # If 3 arguments are supplied, include the 3rd as printer options
   elif [[ "$#" -eq 3 ]]; then
-    echo adding "$printerName"
+    echo adding ${printerName}
 
     lpadmin \
-       -p "$printerName" \
-       -v "smb://print/$printerName" \
-       -P "$ppdFile" \
+       -p ${printerName} \
+       -v "smb://print/${printerName}" \
+       -P "${ppdFile}" \
        -E \
        -o printer-is-shared=false \
-       -o auth-info-required="$AUTH" \
-       "$printerOptions"
+       -o auth-info-required=${AUTH} \
+       ${printerOptions}
 
     cupsdisable
-    cupsenable "$printerName" -E
-    cupsaccept "$printerName"
+    cupsenable ${printerName} -E
+    cupsaccept ${printerName}
     sudo killall -HUP cupsd
     # sends test print page
-    lp -d "$printerName" -o media="letter" $TESTPRINT
+    lp -d ${printerName} -o media="letter" ${TESTPRINT}
     #checkError
   fi
 }
 
 # This function will display the print options available to each printer.
 ppdSettings(){
-  printerName="$1"
+  printerName=${1}
   lpoptions \
-      -p "$printerName" \
+      -p ${printerName} \
       -l
 }
 
 checkError(){
-  grep 'Authentication' $ERRORLOG | check=$?
-  if [[ "$check" -eq 0 ]]; then
+  grep 'Authentication' ${ERRORLOG} | check=$?
+  if [[ ${check} -eq 0 ]]; then
     echo There is an Authentication Error...Attempting to resolve.
     echo Clearing AD_IRT_P6035cdn queue
     cancel -a "AD_IRT_P6035cdn"
     # if keychain found then delete keychain
     security find-internet-password -l 'print'
     security delete-internet-password -l 'print'
-  elif [[ "$check -eq 1" ]]; then
+  elif [[ "${check} -eq 1" ]]; then
     echo No Error found....
   else
     echo Error Occured.
@@ -134,8 +130,7 @@ checkError(){
 
 
 ############################################################
-
-if [[ "$1" = "list" ]]; then
+if [[ ${1} = "list" ]]; then
   list
 elif [[ "$#" -eq 1 ]]; then
   if [[ -z "${!options}" ]]; then
@@ -143,7 +138,7 @@ elif [[ "$#" -eq 1 ]]; then
   else
     addPrinter "${!printerName}" "${!ppdFile}" "${!printOptions}"
   fi
-elif [[ "$#" -eq 2 && "$2" = "options" ]]; then
+elif [[ "$#" -eq 2 && ${2} = "options" ]]; then
   ppdSettings "${!printerName}"
 
 fi
