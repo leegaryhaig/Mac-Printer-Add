@@ -3,9 +3,8 @@
 # Created on: Jan 4th, 2019
 # By: Gary Lee
 
-# use AUTH=negotiate for kerberos
-# AUTH=negotiate
-# default to AUTH=none so the user is prompted for creds
+# Mojave CUPS v.2.2.9 (cups-462.10)
+# auth-info-required=${AUTH} Required for AD BOUND MACHINE
 AUTH='negotiate'
 PPDPATH="/Library/Printers/PPDs/Contents/Resources"
 TESTPRINT="/usr/share/cups/data/testprint"
@@ -73,13 +72,14 @@ addPrinter(){
        -o printer-is-shared=false \
        -o auth-info-required=${AUTH} \
 
+
     cupsdisable
     cupsenable ${printerName} -E
     cupsaccept ${printerName}
-    # sends test print page
-    lp -d ${printerName} -o media="letter" ${TESTPRINT}
-    sudo killall -HUP cupsd
-    #checkError
+
+    lp -d ${printerName} -o media="letter" ${TESTPRINT} # sends test print page
+
+    #checkError()
 
   # If 3 arguments are supplied, include the 3rd as printer options
   elif [[ "$#" -eq 3 ]]; then
@@ -94,13 +94,12 @@ addPrinter(){
        -o auth-info-required=${AUTH} \
        ${printerOptions}
 
-    cupsdisable
+    cupsdisable # Stops printer q
     cupsenable ${printerName} -E
     cupsaccept ${printerName}
-    sudo killall -HUP cupsd
-    # sends test print page
-    lp -d ${printerName} -o media="letter" ${TESTPRINT}
-    #checkError
+
+    lp -d ${printerName} -o media="letter" ${TESTPRINT} # sends test print page
+    #checkError()
   fi
 }
 
