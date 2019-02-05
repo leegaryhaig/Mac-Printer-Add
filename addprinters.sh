@@ -6,7 +6,7 @@
 # use AUTH=negotiate for kerberos
 # AUTH=negotiate
 # default to AUTH=none so the user is prompted for creds
-AUTH='none'
+AUTH='negotiate'
 PPDPATH="/Library/Printers/PPDs/Contents/Resources"
 TESTPRINT="/usr/share/cups/data/testprint"
 KEYCHAIN='/library/keychains/'
