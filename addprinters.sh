@@ -38,6 +38,8 @@ vd_crotty=("VD_Crotty_M451dn" "$PPDPATH/HP LJ 300-400 color M351-M451.gz")
 vd_sette=("VD_Sette_P6130cdn" "$PPDPATH/Kyocera ECOSYS P6130cdn.PPD")
 vd_shresta=("VD_Shresta_3700dtn")
 vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
+
+priv_altman=("CB_Altman_Private_M451" "$PPDPATH/HP LJ 300-400 color M351-M451.gz")
 #addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
 #addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
 #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
@@ -72,14 +74,9 @@ addPrinter(){
        -o printer-is-shared=false \
        -o auth-info-required=${AUTH} \
 
-
     cupsdisable
     cupsenable ${printerName} -E
     cupsaccept ${printerName}
-
-    lp -d ${printerName} -o media="letter" ${TESTPRINT} # sends test print page
-
-    #checkError()
 
   # If 3 arguments are supplied, include the 3rd as printer options
   elif [[ "$#" -eq 3 ]]; then
@@ -98,8 +95,6 @@ addPrinter(){
     cupsenable ${printerName} -E
     cupsaccept ${printerName}
 
-    lp -d ${printerName} -o media="letter" ${TESTPRINT} # sends test print page
-    #checkError()
   fi
 }
 
@@ -110,23 +105,6 @@ ppdSettings(){
       -p ${printerName} \
       -l
 }
-
-checkError(){
-  grep 'Authentication' ${ERRORLOG} | check=$?
-  if [[ ${check} -eq 0 ]]; then
-    echo There is an Authentication Error...Attempting to resolve.
-    echo Clearing AD_IRT_P6035cdn queue
-    cancel -a "AD_IRT_P6035cdn"
-    # if keychain found then delete keychain
-    security find-internet-password -l 'print'
-    security delete-internet-password -l 'print'
-  elif [[ "${check} -eq 1" ]]; then
-    echo No Error found....
-  else
-    echo Error Occured.
-  fi
-}
-
 
 ############################################################
 if [[ ${1} = "list" ]]; then
@@ -139,5 +117,4 @@ elif [[ "$#" -eq 1 ]]; then
   fi
 elif [[ "$#" -eq 2 && ${2} = "options" ]]; then
   ppdSettings "${!printerName}"
-
 fi
