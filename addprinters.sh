@@ -40,6 +40,7 @@ vd_shresta=("VD_Shresta_3700dtn")
 vivarium=("AD_Vivarium_M3550idn" "$PPDPATH/Kyocera ECOSYS M3550idn.ppd")
 
 priv_altman=("CB_Altman_Private_M451" "$PPDPATH/HP LJ 300-400 color M351-M451.gz")
+priv_naomi=("AD_Private_Naomi_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD")
 #addPrinter "DI_Private_Miller_P6035cdn" "$PPDPATH/Kyocera ECOSYS P6035cdn.PPD" # Good
 #addPrinter "DI_Schoenberger_M553dn" "$PPDPATH/HP Color LaserJet M553.gz" # Good
 #addPrinter "VD_Sette_P3015" "$PPDPATH/HP Color LaserJet 3000.gz"
